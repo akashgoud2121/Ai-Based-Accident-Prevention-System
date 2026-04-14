@@ -71,18 +71,26 @@ export class StabilityMonitor {
     // Eye state with hysteresis (Longer closures)
     const instantEar = ear || 0;
     
-    // Sensitivity Tuning: Increase thresholds to catch fatigue earlier
-    const closedThreshold = 0.24; 
-    const openThreshold = 0.27;
+    // Sensitivity Tuning: Mobile cameras need more breathing room
+    // Defaulting to 0.21 (closed) / 0.25 (open) for better robustness
+    const closedThreshold = 0.21; 
+    const openThreshold = 0.25;
 
-    if (this.eyeState !== "CLOSED") {
-      if (instantEar < closedThreshold) {
-        this.eyeState = "CLOSED";
+    // Zero-Confidence Handling: If EAR is exactly 0, it's usually a tracking failure, not a closure.
+    // We only update state if we have a valid non-zero reading.
+    if (instantEar > 0) {
+      if (this.eyeState !== "CLOSED") {
+        if (instantEar < closedThreshold) {
+          this.eyeState = "CLOSED";
+        }
+      } else {
+        if (instantEar > openThreshold) {
+          this.eyeState = "OPEN";
+        }
       }
     } else {
-      if (instantEar > openThreshold) {
-        this.eyeState = "OPEN";
-      }
+      // If tracker is lost, we pause the closure counter to prevent false 'Micro-sleep' alerts
+      this.eyeState = "UNKNOWN";
     }
 
     // Update PERCLOS history

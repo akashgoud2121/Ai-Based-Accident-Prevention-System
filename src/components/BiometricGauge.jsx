@@ -11,9 +11,10 @@ const BiometricGauge = ({ label, value, max, icon: Icon }) => {
       if (value > 8) return 'var(--status-warning)'; // Alert Copper
       return 'var(--status-safe)'; // Normal Sage
     } else if (label.toLowerCase().includes('eye')) {
-      if (value < 0.18 && value > 0) return 'var(--status-danger)'; // Red for extreme closure
-      if (value < 0.25 && value > 0) return 'var(--status-warning)'; // Copper for drowsiness
-      return 'var(--status-safe)'; // Sage for normal
+      if (value === 0) return 'var(--status-safe)'; // Don't alert if face mesh is lost
+      if (value < 0.18) return 'var(--status-danger)'; 
+      if (value < 0.23) return 'var(--status-warning)'; 
+      return 'var(--status-safe)';
     } else {
       if (value > 0.38) return 'var(--status-warning)';
       return 'var(--status-safe)';
