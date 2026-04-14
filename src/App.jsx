@@ -95,7 +95,7 @@ function App() {
           
           {/* Driver Camera Module */}
           <div className="lg:col-span-12 xl:col-span-8 flex flex-col gap-4">
-            <div className="precision-card p-1 aspect-[16/9] md:aspect-auto md:h-[500px] relative overflow-hidden group">
+            <div className="precision-card p-1 aspect-[4/5] sm:aspect-video md:aspect-auto md:h-[500px] relative overflow-hidden group">
               <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
                  <div className="precision-card px-3 py-1 bg-surface-muted/60 backdrop-blur-sm border-border/10">
                     <span className="font-mono text-[9px] text-text-secondary uppercase tracking-[0.2em]">Driver Camera Feed</span>
