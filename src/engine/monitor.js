@@ -33,7 +33,7 @@ export class StabilityMonitor {
     this.isBlinkActive = false;
 
     // PERCLOS (Percentage of Eye Closure) Logic
-    this.perclosWindowSize = 300; // 10 seconds @ 30fps
+    this.perclosWindowSize = 150; // 5 seconds @ 30fps
     this.eyeStateHistory = new Array(this.perclosWindowSize).fill(0); // 0 = open, 1 = closed
     this.historyPointer = 0;
   }
@@ -71,13 +71,12 @@ export class StabilityMonitor {
     // Eye state with hysteresis (Longer closures)
     const instantEar = ear || 0;
     
-    // Sensitivity Tuning: Mobile cameras need more breathing room
-    // Defaulting to 0.21 (closed) / 0.25 (open) for better robustness
-    const closedThreshold = 0.21; 
-    const openThreshold = 0.25;
+    // Status Sensitivity Tuning: Finding the "Precision Sweet Spot"
+    // We increase thresholds slightly to ensure closure is detected reliably.
+    const closedThreshold = 0.22; 
+    const openThreshold = 0.26;
 
-    // Zero-Confidence Handling: If EAR is exactly 0, it's usually a tracking failure, not a closure.
-    // We only update state if we have a valid non-zero reading.
+    // Zero-Confidence Handling: If EAR is exactly 0
     if (instantEar > 0) {
       if (this.eyeState !== "CLOSED") {
         if (instantEar < closedThreshold) {
@@ -89,11 +88,13 @@ export class StabilityMonitor {
         }
       }
     } else {
-      // If tracker is lost, we pause the closure counter to prevent false 'Micro-sleep' alerts
+      // If tracker is lost, we set state to UNKNOWN.
+      // We don't record it as CLOSED in history here, 
+      // but we let the evaluate function check posture.
       this.eyeState = "UNKNOWN";
     }
 
-    // Update PERCLOS history
+    // Update PERCLOS history (5s window)
     this.eyeStateHistory[this.historyPointer] = this.eyeState === "CLOSED" ? 1 : 0;
     this.historyPointer = (this.historyPointer + 1) % this.perclosWindowSize;
 
@@ -117,16 +118,15 @@ export class StabilityMonitor {
     const closedSeconds = this.closedEyeFrames / this.fps;
     const yawnSeconds = this.yawnFrames / this.fps;
     
-    // PERCLOS Calculation
     const closedFramesInWindow = this.eyeStateHistory.reduce((a, b) => a + b, 0);
     const perclos = (closedFramesInWindow / this.perclosWindowSize) * 100;
 
     let status = "NORMAL";
     let reason = "Monitoring Active";
 
-    // Priority 1: Physical Collapse (Posture)
+    // Priority 1: Physical Collapse (Posture - The most reliable signal during sleep)
     if (posture && posture.state !== "NORMAL") {
-      status = posture.state.startsWith("FALLEN") ? "HIGH RISK" : "WARNING";
+      status = posture.state.includes("FALLEN") ? "HIGH RISK" : "WARNING";
       reason = `Posture: ${posture.state}`;
     } 
     // Priority 2: Micro-sleep (Instant Threat)
@@ -139,12 +139,22 @@ export class StabilityMonitor {
       status = "HIGH RISK";
       reason = "Extreme Fatigue (PERCLOS)";
     }
-    // Priority 4: Drowsiness / Heavy eyes
+    // Priority 4: Inferred Risk (No Eye Data + Previous State)
+    else if (this.eyeState === "UNKNOWN" && closedSeconds > 0) {
+       status = "WARNING";
+       reason = "Signal Lost (Risk Detected)";
+    }
+    // Priority 5: Drowsiness / Heavy eyes
     else if (closedSeconds >= this.eyeWarningSeconds) {
       status = "WARNING";
       reason = "Fatigue Indicators";
     }
-    // Priority 5: Yawning
+    // Priority 6: Tracker Visibility
+    else if (this.eyeState === "UNKNOWN") {
+      status = "NORMAL";
+      reason = "Visibility Low";
+    }
+    // Priority 6: Yawning
     else if (yawnSeconds > 1.2) {
       status = "WARNING";
       reason = "Frequent Yawning";
