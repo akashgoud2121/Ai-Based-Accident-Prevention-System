@@ -1,0 +1,119 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+
+@theme {
+  --color-accent-copper: var(--accent-copper);
+  --color-status-safe: var(--status-safe);
+  --color-status-warning: var(--status-warning);
+  --color-status-danger: var(--status-danger);
+  --color-status-neutral: var(--status-neutral);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+}
+
+:root {
+  /* Default: Dark Theme (Automotive Precision) */
+  --bg: #0f0e0d;
+  --surface: #1a1917;
+  --surface-muted: #141312;
+  --border: #2b2926;
+  --border-active: #3d3b38;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+
+  --accent-copper: #c4874a;
+  --status-safe: #7da382;   /* Sage */
+  --status-warning: #c4874a; /* Copper */
+  --status-danger: #ef4444;  /* Safety Red */
+  --status-neutral: #64748b; /* Slate */
+
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.5;
+  background-color: var(--bg);
+  color: var(--text-primary);
+}
+
+.light {
+  --bg: #fcfbf9;
+  --surface: #ffffff;
+  --surface-muted: #f5f4f2;
+  --border: #e8e6e1;
+  --border-active: #d6d3cc;
+
+  --text-primary: #0f0e0d;
+  --text-secondary: #57534e;
+  --text-muted: #a8a29e;
+
+  --accent-copper: #a86b32; /* Slightly more saturated for light mode */
+  --status-safe: #5a7d60;
+  --status-warning: #c4874a;
+  --status-danger: #dc2626;
+  --status-neutral: #78716c;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.font-mono {
+  font-family: 'DM Mono', monospace;
+}
+
+/* Luxury Card System */
+.precision-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.precision-card:hover {
+  border-color: var(--border-active);
+}
+
+.precision-title {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.precision-value {
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Themed Interactive Elements */
+.btn-primary {
+  background-color: var(--accent-copper);
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: filter 0.2s ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+/* Responsive Grid Base */
+#root {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .precision-card {
+    padding: 1rem !important;
+  }
+}
